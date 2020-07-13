@@ -4,7 +4,7 @@ from datetime import datetime
 import aiohttp
 import jwt
 from api.authentication import User, get_current_user
-from database import add_processed_request, get_status
+from database import add_processed_request
 from fastapi import APIRouter, Depends
 from fastapi.responses import PlainTextResponse
 
@@ -44,7 +44,4 @@ async def proxy(user: User = Depends(get_current_user)):
             status_code=404,
         )
     add_processed_request()
-    status = get_status()
-    return "Your request was succesfully processed with: {} requests and {}s since start".format(
-        status["n_requests"], status["start"]
-    )
+    return "Your request was succesfully processed"

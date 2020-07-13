@@ -1,0 +1,17 @@
+.status-container {
+    margin-left: 3rem;
+    font-family: OpenSansCondensedBold, Calibri, sans-serif;
+}
+.status-title {
+    font-size: 30px;
+    color: #76cce8;
+}
+.status-element {
+    display: flex;
+    width: 300px;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    color: #999999;
+    margin-bottom: 0.75rem;
+}

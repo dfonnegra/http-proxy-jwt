@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Status page</title>
+    <link href="{{ url_for('static', path='/status.css') }}" rel="stylesheet">
+</head>
+<body>
+    <h1>
+        <img src="https://castlabs.com/wp-content/themes/castlabs/img/castlabs-logo.png" alt="castLabs" title="castLabs" class="logo img-responsive" style="">
+    </h1>
+    <div class="status-container">
+        <h2 class="status-title">Status page</h2>
+        <div class="status-element">
+            <span>Uptime</span>
+            <span>{{ uptime }}h</span>
+        </div>
+        <div class="status-element">
+            <span>Number of requests</span>
+            <span>{{ n_requests }}</span>
+        </div>
+    </div>
+</body>
+</html>
