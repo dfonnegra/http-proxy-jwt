@@ -7,6 +7,8 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from pydantic import BaseModel
 
+# Normally these fields wouldn't go here but in a local settings managed for example by dynaconf or passed through
+# an environment variable with docker.
 SECRET_KEY = "veryverysecretkey"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 HASHING_ALGORITHM = "HS512"

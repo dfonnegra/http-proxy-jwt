@@ -1,10 +1,10 @@
-import asyncio
 import secrets
 from datetime import datetime
 
 import aiohttp
 import jwt
 from api.authentication import User, get_current_user
+from database import add_processed_request, get_status
 from fastapi import APIRouter, Depends
 from fastapi.responses import PlainTextResponse
 
@@ -43,4 +43,8 @@ async def proxy(user: User = Depends(get_current_user)):
             "The remote service returned status: {}".format(response.status),
             status_code=404,
         )
-    return "Your request was succesfully processed"
+    add_processed_request()
+    status = get_status()
+    return "Your request was succesfully processed with: {} requests and {}s since start".format(
+        status["n_requests"], status["start"]
+    )

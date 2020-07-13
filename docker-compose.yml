@@ -5,3 +5,8 @@ services:
       context: .
     ports:
       - "${HTTP_PORT}:${HTTP_PORT}"
+  redis:
+    image: "redis:6"
+    ports:
+      - "13138:6379"
+
