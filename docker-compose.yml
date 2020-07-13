@@ -3,7 +3,5 @@ services:
   http_proxy:
     build:
       context: .
-      args:
-        HTTP_PORT: 13139
     ports:
-      - "8000:13139"
+      - "${HTTP_PORT}:${HTTP_PORT}"
