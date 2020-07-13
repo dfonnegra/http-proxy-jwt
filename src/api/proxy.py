@@ -11,7 +11,8 @@ from fastapi.responses import PlainTextResponse
 proxy_router = APIRouter()
 
 
-# Normally these fields wouldn't go here but in a local settings managed for example by dynaconf.
+# Normally these fields wouldn't go here but in a local settings managed for example by dynaconf or passed through
+# an environment variable with docker.
 SECRET_KEY = "a9ddbcaba8c0ac1a0a812dc0c2f08514b23f2db0a68343cb8199ebb38a6d91e4ebfb378e22ad39c2d01d0b4ec9c34aa91056862ddace3fbbd6852ee60c36acbf"
 HASHING_ALGORITHM = "HS512"
 ENDPOINT_URL = "https://postman-echo.com/post/"
