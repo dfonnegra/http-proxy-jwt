@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  http_proxy:
+    build:
+      context: .
+      args:
+        HTTP_PORT: 13139
+    ports:
+      - "8000:13139"
