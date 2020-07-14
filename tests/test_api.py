@@ -1,17 +1,23 @@
-from unittest import TestCase
-from unittest.mock import patch
-
+import aiohttp
 import jwt
+from aiohttp import web
 from api import app
-from api.authentication import (HASHING_ALGORITHM, SECRET_KEY,
-                                authenticate_user, create_access_token,
-                                get_current_user, hash_password)
+from api.authentication import (
+    HASHING_ALGORITHM,
+    SECRET_KEY,
+    authenticate_user,
+    create_access_token,
+    get_current_user,
+    hash_password,
+)
+from asynctest import TestCase, patch
+from database import get_status
 from fakeredis import FakeStrictRedis
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
 
 
-@patch("database.database", FakeStrictRedis())
+@patch("database.redis.Redis", FakeStrictRedis)
 class TestAPI(TestCase):
     def setUp(self):
         self.client = TestClient(app)
@@ -68,4 +74,102 @@ class TestAPI(TestCase):
             self.assertEqual(response.status_code, 401)
 
     def test_login_user_returns_the_token_when_the_info_is_correct(self):
-        
+        with patch(
+            "api.authentication.user_db",
+            {"newuser": {"username": "newuser", "password": hash_password("123")}},
+        ):
+            response = self.client.post(
+                "/token",
+                headers={
+                    "content-type": "application/x-www-form-urlencoded",
+                    "accept": "application/json",
+                },
+                data={"username": "newuser", "password": "123"},
+            )
+            self.assertEqual(response.status_code, 200)
+
+    def test_proxy_returns_502_when_remote_service_has_error(self):
+        with patch(
+            "api.authentication.user_db",
+            {"newuser": {"username": "newuser", "password": hash_password("123")}},
+        ):
+            response = self.client.post(
+                "/token",
+                headers={
+                    "content-type": "application/x-www-form-urlencoded",
+                    "accept": "application/json",
+                },
+                data={"username": "newuser", "password": "123"},
+            )
+
+            def mock_post(*args, **kwargs):
+                raise aiohttp.ClientConnectionError()
+
+            with patch("api.proxy.aiohttp.ClientSession.post", mock_post):
+                response = self.client.post(
+                    "/",
+                    headers={
+                        "Authorization": "Bearer {}".format(
+                            response.json()["access_token"]
+                        )
+                    },
+                )
+                self.assertEqual(response.status_code, 502)
+
+    def test_proxy_returns_404_when_remote_service_doesnt_return_200(self):
+        with patch(
+            "api.authentication.user_db",
+            {"newuser": {"username": "newuser", "password": hash_password("123")}},
+        ):
+            response = self.client.post(
+                "/token",
+                headers={
+                    "content-type": "application/x-www-form-urlencoded",
+                    "accept": "application/json",
+                },
+                data={"username": "newuser", "password": "123"},
+            )
+
+            async def mock_post(*args, **kwargs):
+                return web.Response(text="", status=400)
+
+            with patch("api.proxy.aiohttp.ClientSession.post", mock_post):
+                response = self.client.post(
+                    "/",
+                    headers={
+                        "Authorization": "Bearer {}".format(
+                            response.json()["access_token"]
+                        )
+                    },
+                )
+                self.assertEqual(response.status_code, 404)
+
+    def test_proxy_returns_200_when_succesful_and_update_status(self):
+        with patch(
+            "api.authentication.user_db",
+            {"newuser": {"username": "newuser", "password": hash_password("123")}},
+        ):
+            response = self.client.post(
+                "/token",
+                headers={
+                    "content-type": "application/x-www-form-urlencoded",
+                    "accept": "application/json",
+                },
+                data={"username": "newuser", "password": "123"},
+            )
+
+            async def mock_post(*args, **kwargs):
+                return web.Response(text="", status=200)
+
+            self.assertEqual(get_status()["n_requests"], 0)
+            with patch("api.proxy.aiohttp.ClientSession.post", mock_post):
+                response = self.client.post(
+                    "/",
+                    headers={
+                        "Authorization": "Bearer {}".format(
+                            response.json()["access_token"]
+                        )
+                    },
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(get_status()["n_requests"], 1)
