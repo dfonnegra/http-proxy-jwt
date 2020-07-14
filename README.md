@@ -41,6 +41,8 @@ The RESTful API is built with FastAPI and contains 3 endpoints:
     `curl -X POST "http://localhost:13139/" -H "accept: application/json" -H "Authorization: Bearer token" -d ""`
 
 - /status: This status page shows the time since the container was run for the first time and the number of calls to the
-/ endpoint in that time.
+/ endpoint in that time. To show it just copy-paste the following url in your browser:
+
+    `http://localhost:13139/status`
 
 
