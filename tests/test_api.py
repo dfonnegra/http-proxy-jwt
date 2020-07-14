@@ -2,18 +2,13 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import jwt
-from api.authentication import (
-    HASHING_ALGORITHM,
-    SECRET_KEY,
-    authenticate_user,
-    create_access_token,
-    get_current_user,
-    hash_password,
-)
+from api import app
+from api.authentication import (HASHING_ALGORITHM, SECRET_KEY,
+                                authenticate_user, create_access_token,
+                                get_current_user, hash_password)
 from fakeredis import FakeStrictRedis
 from fastapi import HTTPException
 from fastapi.testclient import TestClient
-from api import app
 
 
 @patch("database.database", FakeStrictRedis())
@@ -48,6 +43,29 @@ class TestAPI(TestCase):
 
     def test_login_user_returns_400_when_not_existing_user(self):
         response = self.client.post(
-            "/token", json={"username": "newuser", "password": "123"}
+            "/token",
+            headers={
+                "content-type": "application/x-www-form-urlencoded",
+                "accept": "application/json",
+            },
+            data={"username": "newuser", "password": "123"},
         )
-        self.assertEqual(response.status, 400)
+        self.assertEqual(response.status_code, 400)
+
+    def test_login_user_returns_401_when_the_password_is_wrong(self):
+        with patch(
+            "api.authentication.user_db",
+            {"newuser": {"username": "newuser", "password": hash_password("123")}},
+        ):
+            response = self.client.post(
+                "/token",
+                headers={
+                    "content-type": "application/x-www-form-urlencoded",
+                    "accept": "application/json",
+                },
+                data={"username": "newuser", "password": "122"},
+            )
+            self.assertEqual(response.status_code, 401)
+
+    def test_login_user_returns_the_token_when_the_info_is_correct(self):
+        
