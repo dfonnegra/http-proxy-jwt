@@ -9,6 +9,11 @@ In this case "https://postman-echo.com/post/", with the following claims:
 
 On the other hand, the server counts the number of requests since last build and the uptime.
 
+## Requirements
+
+- docker >= 18
+- docker-compose >= 1.13.0
+
 ## Build
 Building the project is really simple
 
