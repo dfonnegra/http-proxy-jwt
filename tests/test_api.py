@@ -2,15 +2,25 @@ from unittest import TestCase
 from unittest.mock import patch
 
 import jwt
-from api.authentication import (HASHING_ALGORITHM, SECRET_KEY,
-                                authenticate_user, create_access_token,
-                                get_current_user, hash_password, user_db)
+from api.authentication import (
+    HASHING_ALGORITHM,
+    SECRET_KEY,
+    authenticate_user,
+    create_access_token,
+    get_current_user,
+    hash_password,
+)
 from fakeredis import FakeStrictRedis
 from fastapi import HTTPException
+from fastapi.testclient import TestClient
+from api import app
 
 
 @patch("database.database", FakeStrictRedis())
 class TestAPI(TestCase):
+    def setUp(self):
+        self.client = TestClient(app)
+
     def test_create_access_token_adds_expire(self):
         token = create_access_token({"a": 1, "b": 2}, 20)
         data = jwt.decode(token, SECRET_KEY, algorithms=[HASHING_ALGORITHM])
@@ -35,3 +45,9 @@ class TestAPI(TestCase):
     def test_get_current_user_raises_error_when_wrong_token(self):
         token = create_access_token({"bad_key": "username:{}".format("newuser")})
         self.assertRaises(HTTPException, get_current_user, token)
+
+    def test_login_user_returns_400_when_not_existing_user(self):
+        response = self.client.post(
+            "/token", json={"username": "newuser", "password": "123"}
+        )
+        self.assertEqual(response.status, 400)
