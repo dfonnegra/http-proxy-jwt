@@ -28,7 +28,7 @@ To run the project
 The RESTful API is built with FastAPI and contains 3 endpoints:
 - /login: To log as an user, which is required before using the / endpoint. To login you must execute
 
-    ```curl -X POST "http://localhost:13139/token" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "username=castlabs&password=insane-safe-password"```
+    ```$ curl -X POST "http://localhost:13139/token" -H "accept: application/json" -H "Content-Type: application/x-www-form-urlencoded" -d "username=castlabs&password=insane-safe-password"```
     
     which aunthenticates to the server with the OAuth2 authentication protocol. This will return a schema:
     
@@ -38,11 +38,14 @@ The RESTful API is built with FastAPI and contains 3 endpoints:
     }` 
 - /: This is the proxy endpoint, to execute it, you must send the authorization token returned with the /login endpoint:
 
-    `curl -X POST "http://localhost:13139/" -H "accept: application/json" -H "Authorization: Bearer token" -d ""`
+    ` $ curl -X POST "http://localhost:13139/" -H "accept: application/json" -H "Authorization: Bearer token" -d ""`
 
 - /status: This status page shows the time since the container was run for the first time and the number of calls to the
 / endpoint in that time. To show it just copy-paste the following url in your browser:
 
     `http://localhost:13139/status`
 
+## Testing
+To run the tests execute the command:
 
+`$ make test`
