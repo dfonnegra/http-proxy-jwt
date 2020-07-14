@@ -61,9 +61,10 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[HASHING_ALGORITHM])
-        username = payload.get("sub").lstrip("username:")
+        username = payload.get("sub")
         if username is None:
             raise credentials_exception
+        username = username.replace("username:", "")
     except jwt.PyJWTError:
         raise credentials_exception
     user_data = user_db.get(username)
