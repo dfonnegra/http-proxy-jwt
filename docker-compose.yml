@@ -9,4 +9,7 @@ services:
     image: "redis:6"
     ports:
       - "13138:6379"
-
+  test:
+    build:
+      context: .
+    command: bash -c "cd /usr/src/app/src && python -m unittest discover ../tests/"

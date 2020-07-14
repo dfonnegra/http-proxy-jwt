@@ -13,4 +13,4 @@ rm: stop
 	docker-compose rm
 
 test:
-	cd ./src && python -m unittest discover ../tests/ && cd ..
+	docker-compose run test
